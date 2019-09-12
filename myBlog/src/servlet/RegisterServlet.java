@@ -30,7 +30,7 @@ public class RegisterServlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	
 		String registerName=request.getParameter("registerName");
 		String registerPassword=request.getParameter("registerPassword");
 		String doubleCheckPassword=request.getParameter("doubleCheckPassword");

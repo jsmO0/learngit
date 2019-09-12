@@ -43,9 +43,10 @@ div{
 <div>
 
 <br>
-<a href="publish.jsp">发布博文</a><br>
-<a href="ManageServlet">博文管理</a><br>
-<a href="UserHandlerServlet">用户管理</a><br>
+
+<a href="publish.jsp">发布博文</a><br><br>
+<a href="ManageServlet">博文管理</a><br><br>
+<a href="UserHandlerServlet">用户管理</a><br><br>
 <a href="logout.jsp">退出登录</a>
 </div>
 </body>

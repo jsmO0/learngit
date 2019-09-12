@@ -24,14 +24,38 @@ import MyFilter.MyFileNameFilter;
 
 public class DatabasesHandler {
 	
-	Connection conn=ConnectDatabase.prepareConnect();
+	private Connection conn=null;
 	private Statement stat=null;
 	private PreparedStatement pstat=null;
 	private ResultSet rs=null;
 	private ContentInfo contentInfo=null;
 	private UserInfo userInfo = null;
 	
+	public List<String> getTitleByUsername(String username) {
+		conn = ConnectDatabase.prepareConnect();
+		List<String> titleListByUsername = new ArrayList<String>();
+		String sql = "select title from blog where author=?; ";
+		try {
+    		pstat = conn.prepareStatement(sql);
+    		pstat.setString(1, username);
+    	    rs = pstat.executeQuery();
+    	    while(rs.next()) {
+    	    String title = rs.getString("title");
+    	    titleListByUsername.add(title);
+    	    
+    	    }
+    	}catch(SQLException e1) {
+    		e1.printStackTrace();
+    	}catch(Exception e2) {
+    		e2.printStackTrace();
+    	}finally {
+    		ConnectDatabase.closeConnect(conn, pstat);
+    	}  	
+		return titleListByUsername;
+		
+	}
 	public boolean deleteUser(String username) {
+		conn = ConnectDatabase.prepareConnect();
 		boolean checkDeleteStatus = false;
     	try {
     		String sql = "delete from users where username=?;";
@@ -51,8 +75,73 @@ public class DatabasesHandler {
     	return checkDeleteStatus;
 		
 	}
+	public  int getNumberRow() {
+		conn = ConnectDatabase.prepareConnect();
+		int allRecord = 0;
+		String sql = "select count(*) from users;";
+		try {
+			stat = conn.createStatement();
+			rs = stat.executeQuery(sql);
+			if (rs.next()) {
+				allRecord = rs.getInt(1);	
+			}
+		} catch (SQLException e1) {	
+			e1.printStackTrace();
+		}catch(Exception e2) {
+			e2.printStackTrace();
+		}finally {
+			ConnectDatabase.closeConnect(conn, stat, rs);
+		}
+		
+		return allRecord;
+	}
+	
+	public int getTotalPage() {
+		
+		int totalRow = getNumberRow();
+		final int onePageNumber = 5; 
+		int totalPage = 0;
+		if(totalRow % onePageNumber == 0){
+			totalPage = totalRow / onePageNumber;
+		}else{
+			totalPage = totalRow / onePageNumber + 1;
+		}
+		return totalPage;
+	}
+	
+	public List<UserInfo> getAllUsersByPaging(int currentPage,int onePageNumber) {
+		conn = ConnectDatabase.prepareConnect(); 
+		List<UserInfo> userList = new ArrayList<UserInfo>();
+		int parameterInSql = currentPage*onePageNumber-onePageNumber;
+		String sql = "select *from users limit ?,?;";
+		try {
+			pstat = conn.prepareStatement(sql);
+			pstat.setInt(1,parameterInSql);
+			pstat.setInt(2, onePageNumber);
+			rs = pstat.executeQuery();
+			while (rs.next()) {
+				userInfo = new UserInfo();
+				userInfo.setId(rs.getInt("id"));
+				userInfo.setUsername(rs.getString("username"));
+				userInfo.setPassword(rs.getString("password"));
+				userInfo.setQuestion(rs.getString("question"));
+				userInfo.setAnswer(rs.getString("answer"));
+				userInfo.setGrade(rs.getString("grade"));
+				userList.add(userInfo);
+				
+			}
+		} catch (SQLException e1) {	
+			e1.printStackTrace();
+		}catch(Exception e2) {
+			e2.printStackTrace();
+		}finally {
+			ConnectDatabase.closeConnect(conn, pstat, rs);
+		}
+		return userList;
+	}
 	
 	public List<UserInfo> getAllUsers() {
+		conn = ConnectDatabase.prepareConnect();
 		List<UserInfo> userList = new ArrayList<UserInfo>();
 		String sql = "select *from users;";
 		try {
@@ -80,6 +169,7 @@ public class DatabasesHandler {
 	}
 	public int addUser(String registerName,String registerPassword,String question,String answer,
 			            String grade ) {
+		conn = ConnectDatabase.prepareConnect();
 		int result = -1;
 		String sql = "insert into users(username,password,question,answer,grade) values(?,?,?,?,?);";
 		
@@ -104,6 +194,7 @@ public class DatabasesHandler {
 	}
 	
 	public String handlerLogin(String username) {
+		conn = ConnectDatabase.prepareConnect();
 		String password = null;
 		String sql="select password,grade from users where username='"
 	    		   +username+"';";
@@ -124,6 +215,7 @@ public class DatabasesHandler {
 	}
 	
     public List<ContentInfo> getAllContent() {
+    	conn = ConnectDatabase.prepareConnect();
     	List<ContentInfo> list=new ArrayList<>();
 	try{
 		String sql="select *from blog;";
@@ -150,6 +242,7 @@ public class DatabasesHandler {
 	 }
     
     public boolean deleteContent(int id) {
+    	conn = ConnectDatabase.prepareConnect();
     	boolean boo=false;
     	try {
     		String sql="delete from blog where id=?;";
@@ -224,6 +317,7 @@ public class DatabasesHandler {
     }
     
     public String getFullContent(String title) {
+    	conn = ConnectDatabase.prepareConnect();
     	String sql="select contentPath from blog where title=?;";
     	String fullContent=null;
     	try {

@@ -33,12 +33,25 @@ public class UserHandlerServlet extends HttpServlet {
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	 DatabasesHandler databasesHandler = new DatabasesHandler();
-	 List<UserInfo> userList = databasesHandler.getAllUsers();
-	 if(!userList.isEmpty()) {
-	 request.setAttribute("userList",userList);
-	 request.getRequestDispatcher("handlerUser.jsp").forward(request, response);
-	 }
+		
+		/*
+		 * DatabasesHandler databasesHandler = new DatabasesHandler(); List<UserInfo>
+		 * userList = databasesHandler.getAllUsers(); if(!userList.isEmpty()) {
+		 * request.setAttribute("userList",userList);
+		 * request.getRequestDispatcher("handlerUser.jsp").forward(request, response); }
+		 */
+		int currentPage = 1;
+		String sCurrentPage = (String) request.getParameter("currentPage");
+		System.out.println(sCurrentPage);
+		if(sCurrentPage != null) {
+		 currentPage = Integer.parseInt(sCurrentPage)	;
+		}
+		System.out.println(currentPage);
+		DatabasesHandler databasesHandler = new DatabasesHandler();
+	    int onePageNumber = 5;
+	    List<UserInfo> userList = databasesHandler.getAllUsersByPaging(currentPage, onePageNumber);
+		request.setAttribute("userList", userList);
+		request.getRequestDispatcher("handlerUser.jsp").forward(request, response); 
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
